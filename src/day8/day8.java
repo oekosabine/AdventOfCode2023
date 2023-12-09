@@ -112,24 +112,36 @@ public class day8 {
 					dauer++;
 				}
 				boolean allesZ = true;
+				boolean einZ = false;
 				for (String node : knoten) {
 
 					if (node.charAt(2) != 'Z') {
 						allesZ = false;
 						break;
+					} else {
+						einZ = true;
 					}
 				}
 				if (allesZ) {
 					nichtGefunden = false;
 					break;
 				}
-
-			}
-			if (dauer % 100000 == 0) {
-				for (String node : knoten) {
-					System.out.print(" " + node);
+				if (einZ) {
+					for (String node : knoten) {
+						System.out.print(" " + node);
+					}
+					System.out.println(" " + dauer);
 				}
-				System.out.println(" " + dauer);
+				/*
+				 * Es gab 6 Startknoten. In der Ausgabe stehen jetzt immer die 6 Knoten, wenn
+				 * mindestens einmal ein Z dabei war. Diese Ausgabe in Notepad++ kopieren. Dann
+				 * erkennt man, dass jeder Knoten sein eigenes End-Z hat, an dem er alle X
+				 * Schritte vorbei kommt. Jetzt kann man sich einfach die Frequenz für jeden
+				 * Knoten ansehen. Das heißt jeder Knoten mit End-Z hat eine eigene Dauer, bis
+				 * wieder der jeweilige Z-Knoten erreicht ist. Aus diesen Dauern lässt man sich
+				 * online mit einem kgV-Rechner das kleinste gemeinsame Vielfache ausgeben und
+				 * erhält damit die Lösung.
+				 */
 			}
 		}
 		return dauer;
