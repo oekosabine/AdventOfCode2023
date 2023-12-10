@@ -34,17 +34,6 @@ public class day10 {
 		System.out.println("Solution for part 2: " + solution);
 	}
 
-	public class Kartenpunkte {
-		PunktMitRichtung punkt;
-		Character linksRechtsSeilLeer;
-
-		public Kartenpunkte(PunktMitRichtung punktInit, char ort) {
-			punkt = punktInit;
-			linksRechtsSeilLeer = ort;
-
-		}
-	}
-
 	public class PunktMitRichtung {
 		int x;
 		int y;
@@ -66,6 +55,25 @@ public class day10 {
 			ist = istInit;
 			wohin = wohinInit;
 			woher = woherInit;
+		}
+
+		public PunktMitRichtung(PunktMitRichtung punktInit) {
+			x = punktInit.x;
+			y = punktInit.y;
+			ist = punktInit.ist;
+			wohin = punktInit.wohin;
+			woher = punktInit.woher;
+
+		}
+
+		public void linksRechts(boolean welcheListe, List<PunktMitRichtung> linkeSeite,
+				List<PunktMitRichtung> rechteSeite) {
+			// welche Liste = true: links
+			// false: rechts
+			if (welcheListe)
+				linkeSeite.add(this);
+			else
+				rechteSeite.add(this);
 		}
 
 		public boolean linksoffen() {
@@ -131,334 +139,170 @@ public class day10 {
 		PunktMitRichtung einneuerPunkt = new PunktMitRichtung(einPunkt.x, einPunkt.y - 1,
 				Karte[einPunkt.x][einPunkt.y - 1], ' ', 'U');
 		return einneuerPunkt;
-
 	}
 
 	Character[][] Karte;
 
 	public long solvePart1(List<String> dataList) {
-		Karte = new Character[dataList.get(0).length()][dataList.size()];
-		List<Integer> Startpunkt = new ArrayList<Integer>();
-		for (int y = 0; y < dataList.size(); y++) {
-			String line = (dataList.get(y));
-			for (int x = 0; x < dataList.get(0).length(); x++) {
-				Character element = line.charAt(x);
-				Karte[x][y] = element;
-				if (element == 'S') {
-					Startpunkt.add(0, x);
-					Startpunkt.add(1, y);
-				}
-			}
-		}
+		PunktMitRichtung Startpunkt = startDinge(dataList);
 		long steps = 0L;
-		List<Integer> woBinIch = Startpunkt;
-		Character wohinGehts = null; // R, U, L, O
-		int x = Startpunkt.get(0);
-		int y = Startpunkt.get(1);
-		PunktMitRichtung meinPunkt = new PunktMitRichtung(x, y, Karte[x][y], ' ', ' ');
 		boolean nochUnterwegs = true;
-
-		if ((Karte[meinPunkt.x + 1][meinPunkt.y] == '-' || (Karte[meinPunkt.x + 1][meinPunkt.y] == 'J')
-				|| (Karte[meinPunkt.x + 1][meinPunkt.y] == '7'))) {
-			meinPunkt.x = x + 1;
-			meinPunkt.ist = Karte[x + 1][y];
-			meinPunkt.woher = 'L';
-		} else if ((Karte[meinPunkt.x][meinPunkt.y + 1] == '|' || (Karte[meinPunkt.x][meinPunkt.y + 1] == 'J')
-				|| (Karte[meinPunkt.x][meinPunkt.y + 1] == 'L'))) {
-			meinPunkt.y = y + 1;
-			meinPunkt.ist = Karte[x][y + 1];
-			meinPunkt.woher = 'O';
-		} else if ((Karte[meinPunkt.x - 1][meinPunkt.y] == '-' || (Karte[meinPunkt.x - 1][meinPunkt.y] == 'F')
-				|| (Karte[meinPunkt.x - 1][meinPunkt.y] == 'L'))) {
-			meinPunkt.x = x - 1;
-			meinPunkt.ist = Karte[x - 1][y];
-			meinPunkt.woher = 'R';
-		} else if ((Karte[meinPunkt.x][meinPunkt.y - 1] == '|' || (Karte[meinPunkt.x][meinPunkt.y - 1] == 'F')
-				|| (Karte[meinPunkt.x][meinPunkt.y - 1] == '7'))) {
-			meinPunkt.y = y - 1;
-			meinPunkt.ist = Karte[x][y - 1];
-			meinPunkt.woher = 'U';
-		}
+		PunktMitRichtung meinPunkt = findeStart(Startpunkt);
 		steps++;
 
 		while (nochUnterwegs) {
 			steps++;
-			Character elementKarte = meinPunkt.ist;
-			if ((meinPunkt.woher == 'L') && (meinPunkt.linksoffen())) {
-				if (meinPunkt.rechtsoffen())
-					meinPunkt = rechts(meinPunkt);
-				else if (meinPunkt.obenoffen())
-					meinPunkt = oben(meinPunkt);
-				else if (meinPunkt.untenoffen())
-					meinPunkt = unten(meinPunkt);
-			} else if ((meinPunkt.woher == 'U') && (meinPunkt.untenoffen())) {
-				if (meinPunkt.rechtsoffen())
-					meinPunkt = rechts(meinPunkt);
-				else if (meinPunkt.obenoffen())
-					meinPunkt = oben(meinPunkt);
-				else if (meinPunkt.linksoffen())
-					meinPunkt = links(meinPunkt);
-			} else if ((meinPunkt.woher == 'R') && (meinPunkt.rechtsoffen())) {
-				if (meinPunkt.untenoffen())
-					meinPunkt = unten(meinPunkt);
-				else if (meinPunkt.obenoffen())
-					meinPunkt = oben(meinPunkt);
-				else if (meinPunkt.linksoffen())
-					meinPunkt = links(meinPunkt);
-			} else if ((meinPunkt.woher == 'O') && (meinPunkt.obenoffen())) {
-				if (meinPunkt.untenoffen())
-					meinPunkt = unten(meinPunkt);
-				else if (meinPunkt.rechtsoffen())
-					meinPunkt = rechts(meinPunkt);
-				else if (meinPunkt.linksoffen())
-					meinPunkt = links(meinPunkt);
-			}
+			meinPunkt = neuerPunkt(meinPunkt);
 			if (meinPunkt.ist == 'S')
 				nochUnterwegs = false;
 		}
 		return steps / 2;
 	}
 
-	public long solvePart2(List<String> dataList) {
-		Karte = new Character[dataList.get(0).length()][dataList.size()];
-		List<Integer> Startpunkt = new ArrayList<Integer>();
-		for (int y = 0; y < dataList.size(); y++) {
-			String line = (dataList.get(y));
-			for (int x = 0; x < dataList.get(0).length(); x++) {
-				Character element = line.charAt(x);
-				Karte[x][y] = element;
-				if (element == 'S') {
-					Startpunkt.add(0, x);
-					Startpunkt.add(1, y);
-				}
-			}
+	int xLaenge, yLaenge;
+
+	private PunktMitRichtung findeStart(PunktMitRichtung Startpunkt) {
+		PunktMitRichtung meinPunkt = null, punktRechts = null, punktLinks = null, punktOben = null, punktUnten = null;
+		Character wertLinks = null, wertOben = null, wertRechts = null, wertUnten = null;
+		if (Startpunkt.x + 1 < xLaenge) {
+			wertRechts = Karte[Startpunkt.x + 1][Startpunkt.y];
+			punktRechts = new PunktMitRichtung(Startpunkt.x + 1, Startpunkt.y, wertRechts, ' ', 'L');
 		}
-		List<PunktMitRichtung> steps = new ArrayList<PunktMitRichtung>();
+		if (Startpunkt.x > 0) {
+			wertLinks = Karte[Startpunkt.x - 1][Startpunkt.y];
+			punktLinks = new PunktMitRichtung(Startpunkt.x - 1, Startpunkt.y, wertLinks, ' ', 'R');
+		}
+		if (Startpunkt.y > 0) {
+			wertOben = Karte[Startpunkt.x][Startpunkt.y - 1];
+			punktOben = new PunktMitRichtung(Startpunkt.x, Startpunkt.y - 1, wertOben, ' ', 'U');
+		}
+		if (Startpunkt.y + 1 < yLaenge) {
+			wertUnten = Karte[Startpunkt.x][Startpunkt.y + 1];
+			punktUnten = new PunktMitRichtung(Startpunkt.x, Startpunkt.y + 1, wertUnten, ' ', 'O');
+		}
+		if (punktRechts != null && punktRechts.linksoffen()) {
+			meinPunkt = new PunktMitRichtung(punktRechts);
+		} else if (punktUnten != null && punktUnten.untenoffen()) {
+			meinPunkt = new PunktMitRichtung(punktUnten);
+		} else if (punktLinks != null && punktLinks.rechtsoffen()) {
+			meinPunkt = new PunktMitRichtung(punktLinks);
+		} else if (punktOben != null && punktOben.obenoffen()) {
+			meinPunkt = new PunktMitRichtung(punktOben);
+		}
+		return meinPunkt;
+	}
+
+	public long solvePart2(List<String> dataList) {
+		PunktMitRichtung Startpunkt = startDinge(dataList);
 		List<PunktMitRichtung> seilPunkte = new ArrayList<PunktMitRichtung>();
 		List<PunktMitRichtung> linkeSeite = new ArrayList<PunktMitRichtung>();
 		List<PunktMitRichtung> rechteSeite = new ArrayList<PunktMitRichtung>();
-		List<Integer> woBinIch = Startpunkt;
-		Character wohinGehts = null; // R, U, L, O
-		int x = Startpunkt.get(0);
-		int y = Startpunkt.get(1);
-		PunktMitRichtung meinPunkt = new PunktMitRichtung(x, y, Karte[x][y], ' ', ' ');
 		boolean nochUnterwegs = true;
-
-		if ((Karte[meinPunkt.x + 1][meinPunkt.y] == '-' || (Karte[meinPunkt.x + 1][meinPunkt.y] == 'J')
-				|| (Karte[meinPunkt.x + 1][meinPunkt.y] == '7'))) {
-			meinPunkt.x = x + 1;
-			meinPunkt.ist = Karte[x + 1][y];
-			meinPunkt.woher = 'L';
-		} else if ((Karte[meinPunkt.x][meinPunkt.y + 1] == '|' || (Karte[meinPunkt.x][meinPunkt.y + 1] == 'J')
-				|| (Karte[meinPunkt.x][meinPunkt.y + 1] == 'L'))) {
-			meinPunkt.y = y + 1;
-			meinPunkt.ist = Karte[x][y + 1];
-			meinPunkt.woher = 'O';
-		} else if ((Karte[meinPunkt.x - 1][meinPunkt.y] == '-' || (Karte[meinPunkt.x - 1][meinPunkt.y] == 'F')
-				|| (Karte[meinPunkt.x - 1][meinPunkt.y] == 'L'))) {
-			meinPunkt.x = x - 1;
-			meinPunkt.ist = Karte[x - 1][y];
-			meinPunkt.woher = 'R';
-		} else if ((Karte[meinPunkt.x][meinPunkt.y - 1] == '|' || (Karte[meinPunkt.x][meinPunkt.y - 1] == 'F')
-				|| (Karte[meinPunkt.x][meinPunkt.y - 1] == '7'))) {
-			meinPunkt.y = y - 1;
-			meinPunkt.ist = Karte[x][y - 1];
-			meinPunkt.woher = 'U';
-		}
-		steps.add(meinPunkt);
+		PunktMitRichtung meinPunkt = findeStart(Startpunkt);
 		seilPunkte.add(meinPunkt);
-
 		while (nochUnterwegs) {
-			Character elementKarte = meinPunkt.ist;
-			if ((meinPunkt.woher == 'L') && (meinPunkt.linksoffen())) {
-				if (meinPunkt.rechtsoffen())
-					meinPunkt = rechts(meinPunkt);
-				else if (meinPunkt.obenoffen())
-					meinPunkt = oben(meinPunkt);
-				else if (meinPunkt.untenoffen())
-					meinPunkt = unten(meinPunkt);
-			} else if ((meinPunkt.woher == 'U') && (meinPunkt.untenoffen())) {
-				if (meinPunkt.rechtsoffen())
-					meinPunkt = rechts(meinPunkt);
-				else if (meinPunkt.obenoffen())
-					meinPunkt = oben(meinPunkt);
-				else if (meinPunkt.linksoffen())
-					meinPunkt = links(meinPunkt);
-			} else if ((meinPunkt.woher == 'R') && (meinPunkt.rechtsoffen())) {
-				if (meinPunkt.untenoffen())
-					meinPunkt = unten(meinPunkt);
-				else if (meinPunkt.obenoffen())
-					meinPunkt = oben(meinPunkt);
-				else if (meinPunkt.linksoffen())
-					meinPunkt = links(meinPunkt);
-			} else if ((meinPunkt.woher == 'O') && (meinPunkt.obenoffen())) {
-				if (meinPunkt.untenoffen())
-					meinPunkt = unten(meinPunkt);
-				else if (meinPunkt.rechtsoffen())
-					meinPunkt = rechts(meinPunkt);
-				else if (meinPunkt.linksoffen())
-					meinPunkt = links(meinPunkt);
-			}
-			steps.add(meinPunkt);
+			meinPunkt = neuerPunkt(meinPunkt);
 			seilPunkte.add(meinPunkt);
-			if (meinPunkt.ist == '|') {
-				if (meinPunkt.woher == 'U') {
-					PunktMitRichtung punkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y, '*', ' ', ' ');
-					rechteSeite.add(punkt);
-					punkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y, '*', ' ', ' ');
-					linkeSeite.add(punkt);
-				} else if (meinPunkt.woher == 'O') {
-					PunktMitRichtung rechterPunkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y, '*', ' ', ' ');
-					rechteSeite.add(rechterPunkt);
-					PunktMitRichtung linkerPunkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y, '*', ' ', ' ');
-					linkeSeite.add(linkerPunkt);
-				}
-
-			} else if (meinPunkt.ist == '-') {
-				if (meinPunkt.woher == 'L') {
-					PunktMitRichtung rechterPunkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y + 1, '*', ' ', ' ');
-					rechteSeite.add(rechterPunkt);
-					PunktMitRichtung linkerPunkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y - 1, '*', ' ', ' ');
-					linkeSeite.add(linkerPunkt);
-				} else if (meinPunkt.woher == 'R') {
-					PunktMitRichtung rechterPunkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y - 1, '*', ' ', ' ');
-					rechteSeite.add(rechterPunkt);
-					PunktMitRichtung linkerPunkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y + 1, '*', ' ', ' ');
-					linkeSeite.add(linkerPunkt);
-				}
-
-			} else if (meinPunkt.ist == 'L') {
-				if (meinPunkt.woher == 'O') {
-					PunktMitRichtung rechterPunkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y, '*', ' ', ' ');
-					rechteSeite.add(rechterPunkt);
-					rechterPunkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y + 1, '*', ' ', ' ');
-					rechteSeite.add(rechterPunkt);
-					rechterPunkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y + 1, '*', ' ', ' ');
-					rechteSeite.add(rechterPunkt);
-					PunktMitRichtung linkerPunkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y - 1, '*', ' ',
-							' ');
-					linkeSeite.add(linkerPunkt);
-				} else if (meinPunkt.woher == 'R') {
-					PunktMitRichtung rechterPunkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y - 1, '*', ' ',
-							' ');
-					rechteSeite.add(rechterPunkt);
-					PunktMitRichtung linkerPunkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y + 1, '*', ' ', ' ');
-					linkeSeite.add(linkerPunkt);
-					linkerPunkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y + 1, '*', ' ', ' ');
-					linkeSeite.add(linkerPunkt);
-					linkerPunkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y, '*', ' ', ' ');
-					linkeSeite.add(linkerPunkt);
-				}
-			} else if (meinPunkt.ist == 'J') {
-				if (meinPunkt.woher == 'O') {
-					PunktMitRichtung rechterPunkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y - 1, '*', ' ',
-							' ');
-					rechteSeite.add(rechterPunkt);
-					PunktMitRichtung linkerPunkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y, '*', ' ', ' ');
-					linkeSeite.add(linkerPunkt);
-					linkerPunkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y + 1, '*', ' ', ' ');
-					linkeSeite.add(linkerPunkt);
-					linkerPunkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y + 1, '*', ' ', ' ');
-					linkeSeite.add(linkerPunkt);
-				} else if (meinPunkt.woher == 'L') {
-					PunktMitRichtung punkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y - 1, '*', ' ', ' ');
-					linkeSeite.add(punkt);
-					punkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y + 1, '*', ' ', ' ');
-					rechteSeite.add(punkt);
-					punkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y + 1, '*', ' ', ' ');
-					rechteSeite.add(punkt);
-					punkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y, '*', ' ', ' ');
-					rechteSeite.add(punkt);
-				}
-			} else if (meinPunkt.ist == '7') {
-				if (meinPunkt.woher == 'L') {
-					PunktMitRichtung punkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y + 1, '*', ' ', ' ');
-					rechteSeite.add(punkt);
-					punkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y - 1, '*', ' ', ' ');
-					linkeSeite.add(punkt);
-					punkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y - 1, '*', ' ', ' ');
-					linkeSeite.add(punkt);
-					punkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y, '*', ' ', ' ');
-					linkeSeite.add(punkt);
-
-				} else if (meinPunkt.woher == 'U') {
-					PunktMitRichtung punkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y + 1, '*', ' ', ' ');
-					linkeSeite.add(punkt);
-					punkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y - 1, '*', ' ', ' ');
-					rechteSeite.add(punkt);
-					punkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y - 1, '*', ' ', ' ');
-					rechteSeite.add(punkt);
-					punkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y, '*', ' ', ' ');
-					rechteSeite.add(punkt);
-				}
-			} else if (meinPunkt.ist == 'F') {
-				if (meinPunkt.woher == 'U') {
-					PunktMitRichtung punkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y + 1, '*', ' ', ' ');
-					rechteSeite.add(punkt);
-					punkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y, '*', ' ', ' ');
-					linkeSeite.add(punkt);
-					punkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y - 1, '*', ' ', ' ');
-					linkeSeite.add(punkt);
-					punkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y - 1, '*', ' ', ' ');
-					linkeSeite.add(punkt);
-
-				} else if (meinPunkt.woher == 'R') {
-					PunktMitRichtung punkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y + 1, '*', ' ', ' ');
-					linkeSeite.add(punkt);
-					punkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y, '*', ' ', ' ');
-					rechteSeite.add(punkt);
-					punkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y - 1, '*', ' ', ' ');
-					rechteSeite.add(punkt);
-					punkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y - 1, '*', ' ', ' ');
-					rechteSeite.add(punkt);
-				}
-			}
+			addLinksRechts(linkeSeite, rechteSeite, meinPunkt);
 			if (meinPunkt.ist == 'S')
 				nochUnterwegs = false;
 		}
 
-		Character[][] neueKarte = new Character[dataList.get(0).length()][dataList.size()];
-
-		for (int i = 0; i < dataList.get(0).length(); i++)
-			for (int j = 0; j < dataList.size(); j++)
-				neueKarte[i][j] = ' ';
-
-		for (PunktMitRichtung punkt : linkeSeite) {
-			if (punkt.x >= 0 && punkt.y >= 0 && punkt.x < dataList.get(0).length() && punkt.y < dataList.size())
-				neueKarte[punkt.x][punkt.y] = '*';
+		Character[][] neueKarte = new Character[xLaenge][yLaenge];
+		erstBefuellungNeueKarte(seilPunkte, linkeSeite, rechteSeite, neueKarte);
+		auffuellen(neueKarte);
+		int sumLinks = 0;
+		int sumRechts = 0;
+		for (int i = 0; i < xLaenge; i++) {
+			for (int j = 0; j < yLaenge; j++) {
+				if (neueKarte[i][j] == '*')
+					sumLinks++;
+				if (neueKarte[i][j] == 'R')
+					sumRechts++;
+			}
 		}
-		for (PunktMitRichtung punkt : rechteSeite) {
-			if (punkt.x >= 0 && punkt.y >= 0 && punkt.x < dataList.get(0).length() && punkt.y < dataList.size())
-
-				neueKarte[punkt.x][punkt.y] = 'R';
-		}
-		for (PunktMitRichtung punkt : seilPunkte) {
-			if (punkt.x >= 0 && punkt.y >= 0 && punkt.x < dataList.get(0).length() && punkt.y < dataList.size())
-
-				neueKarte[punkt.x][punkt.y] = 'Z';
-		}
-
-		for (int i = 0; i < dataList.size(); i++) {
-			for (int j = 0; j < dataList.get(0).length(); j++) {
+		for (int i = 0; i < yLaenge; i++) {
+			for (int j = 0; j < xLaenge; j++) {
 				System.out.print(neueKarte[j][i]);
 			}
 			System.out.print("\n");
-
 		}
 
+		for (int i = 0; i < yLaenge; i++) {
+			if (neueKarte[0][i] == '*') {
+				return sumRechts;
+			}
+			if (neueKarte[xLaenge - 1][i] == '*') {
+				return sumRechts;
+			}
+		}
+		for (int i = 0; i < xLaenge; i++) {
+			if (neueKarte[i][0] == '*') {
+				return sumRechts;
+			}
+			if (neueKarte[i][yLaenge - 1] == '*') {
+				return sumRechts;
+			}
+		}
+		return sumLinks;
+	}
+
+	private void erstBefuellungNeueKarte(List<PunktMitRichtung> seilPunkte, List<PunktMitRichtung> linkeSeite,
+			List<PunktMitRichtung> rechteSeite, Character[][] neueKarte) {
+		for (int i = 0; i < xLaenge; i++)
+			for (int j = 0; j < yLaenge; j++)
+				neueKarte[i][j] = ' ';
+		for (PunktMitRichtung punkt : linkeSeite) {
+			if (punkt.x >= 0 && punkt.y >= 0 && punkt.x < xLaenge && punkt.y < yLaenge)
+				neueKarte[punkt.x][punkt.y] = '*';
+		}
+		for (PunktMitRichtung punkt : rechteSeite) {
+			if (punkt.x >= 0 && punkt.y >= 0 && punkt.x < xLaenge && punkt.y < yLaenge)
+				neueKarte[punkt.x][punkt.y] = 'R';
+		}
+		for (PunktMitRichtung punkt : seilPunkte) {
+			if (punkt.x >= 0 && punkt.y >= 0 && punkt.x < xLaenge && punkt.y < yLaenge)
+				neueKarte[punkt.x][punkt.y] = 'Z';
+		}
+		for (int i = 0; i < yLaenge; i++) {
+			for (int j = 0; j < xLaenge; j++) {
+				System.out.print(neueKarte[j][i]);
+			}
+			System.out.print("\n");
+		}
+	}
+
+	private PunktMitRichtung startDinge(List<String> dataList) {
+		xLaenge = dataList.get(0).length();
+		yLaenge = dataList.size();
+		Karte = new Character[xLaenge][yLaenge];
+		PunktMitRichtung Startpunkt = new PunktMitRichtung(0, 0);
+		for (int y = 0; y < yLaenge; y++) {
+			String line = (dataList.get(y));
+			for (int x = 0; x < xLaenge; x++) {
+				Character element = line.charAt(x);
+				Karte[x][y] = element;
+				if (element == 'S') {
+					Startpunkt = new PunktMitRichtung(x, y);
+				}
+			}
+		}
+		return Startpunkt;
+	}
+
+	private void auffuellen(Character[][] neueKarte) {
 		boolean beendet = false;
 		while (!beendet) {
-			for (int i = 0; i < dataList.get(0).length(); i++) {
-				for (int j = 0; j < dataList.size(); j++) {
+			for (int i = 0; i < xLaenge; i++) {
+				for (int j = 0; j < yLaenge; j++) {
 					if (neueKarte[i][j] == '*') {
 						if (i > 0 && neueKarte[i - 1][j] == ' ') {
 							neueKarte[i - 1][j] = '*';
 						} else if (j > 0 && neueKarte[i][j - 1] == ' ') {
 							neueKarte[i][j - 1] = '*';
-						} else if (i < dataList.get(0).length() - 1 && neueKarte[i + 1][j] == ' ') {
+						} else if (i < xLaenge - 1 && neueKarte[i + 1][j] == ' ') {
 							neueKarte[i + 1][j] = '*';
-						} else if (i < dataList.get(0).length() - 1 && j < dataList.size() - 1
-								&& neueKarte[i + 1][j + 1] == ' ') {
+						} else if (i < xLaenge - 1 && j < yLaenge - 1 && neueKarte[i + 1][j + 1] == ' ') {
 							neueKarte[i + 1][j + 1] = '*';
 
 						}
@@ -468,57 +312,104 @@ public class day10 {
 							neueKarte[i - 1][j] = 'R';
 						} else if (j > 0 && neueKarte[i][j - 1] == ' ') {
 							neueKarte[i][j - 1] = 'R';
-						} else if (i < dataList.get(0).length() - 1 && neueKarte[i + 1][j] == ' ') {
+						} else if (i < xLaenge - 1 && neueKarte[i + 1][j] == ' ') {
 							neueKarte[i + 1][j] = 'R';
-						} else if (i < dataList.get(0).length() - 1 && j < dataList.size() - 1
-								&& neueKarte[i + 1][j + 1] == ' ') {
+						} else if (i < xLaenge - 1 && j < yLaenge - 1 && neueKarte[i + 1][j + 1] == ' ') {
 							neueKarte[i + 1][j + 1] = 'R';
 						}
 					}
 				}
 			}
 			beendet = true;
-			for (int i = 0; i < dataList.get(0).length(); i++)
-				for (int j = 0; j < dataList.size(); j++) {
+			for (int i = 0; i < xLaenge; i++)
+				for (int j = 0; j < yLaenge; j++) {
 					if (neueKarte[i][j] == ' ')
 						beendet = false;
 				}
 		}
-		int sumLinks = 0;
-		int sumRechts = 0;
-		for (int i = 0; i < dataList.get(0).length(); i++) {
-			for (int j = 0; j < dataList.size(); j++) {
-				if (neueKarte[i][j] == '*')
-					sumLinks++;
-				if (neueKarte[i][j] == 'R')
-					sumRechts++;
-			}
+	}
 
+	private void addLinksRechts(List<PunktMitRichtung> linkeSeite, List<PunktMitRichtung> rechteSeite,
+			PunktMitRichtung meinPunkt) {
+		if (meinPunkt.ist == '|') {
+			PunktMitRichtung punkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y, '*', ' ', ' ');
+			punkt.linksRechts(meinPunkt.woher != 'U', linkeSeite, rechteSeite);
+			punkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y, '*', ' ', ' ');
+			punkt.linksRechts(meinPunkt.woher == 'U', linkeSeite, rechteSeite);
+		} else if (meinPunkt.ist == '-') {
+			PunktMitRichtung punkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y + 1, '*', ' ', ' ');
+			punkt.linksRechts(meinPunkt.woher != 'L', linkeSeite, rechteSeite);
+			punkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y - 1, '*', ' ', ' ');
+			punkt.linksRechts(meinPunkt.woher == 'L', linkeSeite, rechteSeite);
+		} else if (meinPunkt.ist == 'L') {
+			PunktMitRichtung punkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y, '*', ' ', ' ');
+			punkt.linksRechts(meinPunkt.woher != 'O', linkeSeite, rechteSeite);
+			punkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y + 1, '*', ' ', ' ');
+			punkt.linksRechts(meinPunkt.woher != 'O', linkeSeite, rechteSeite);
+			punkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y + 1, '*', ' ', ' ');
+			punkt.linksRechts(meinPunkt.woher != 'O', linkeSeite, rechteSeite);
+			punkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y - 1, '*', ' ', ' ');
+			punkt.linksRechts(meinPunkt.woher == 'O', linkeSeite, rechteSeite);
+		} else if (meinPunkt.ist == 'J') {
+			PunktMitRichtung punkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y - 1, '*', ' ', ' ');
+			punkt.linksRechts(meinPunkt.woher != 'O', linkeSeite, rechteSeite);
+			punkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y, '*', ' ', ' ');
+			punkt.linksRechts(meinPunkt.woher == 'O', linkeSeite, rechteSeite);
+			punkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y + 1, '*', ' ', ' ');
+			punkt.linksRechts(meinPunkt.woher == 'O', linkeSeite, rechteSeite);
+			punkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y + 1, '*', ' ', ' ');
+			punkt.linksRechts(meinPunkt.woher == 'O', linkeSeite, rechteSeite);
+		} else if (meinPunkt.ist == '7') {
+			PunktMitRichtung punkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y + 1, '*', ' ', ' ');
+			punkt.linksRechts(meinPunkt.woher != 'L', linkeSeite, rechteSeite);
+			punkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y - 1, '*', ' ', ' ');
+			punkt.linksRechts(meinPunkt.woher == 'L', linkeSeite, rechteSeite);
+			punkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y - 1, '*', ' ', ' ');
+			punkt.linksRechts(meinPunkt.woher == 'L', linkeSeite, rechteSeite);
+			punkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y, '*', ' ', ' ');
+			punkt.linksRechts(meinPunkt.woher == 'L', linkeSeite, rechteSeite);
+		} else if (meinPunkt.ist == 'F') {
+			PunktMitRichtung punkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y + 1, '*', ' ', ' ');
+			punkt.linksRechts(meinPunkt.woher != 'U', linkeSeite, rechteSeite);
+			punkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y, '*', ' ', ' ');
+			punkt.linksRechts(meinPunkt.woher == 'U', linkeSeite, rechteSeite);
+			punkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y - 1, '*', ' ', ' ');
+			punkt.linksRechts(meinPunkt.woher == 'U', linkeSeite, rechteSeite);
+			punkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y - 1, '*', ' ', ' ');
+			punkt.linksRechts(meinPunkt.woher == 'U', linkeSeite, rechteSeite);
 		}
-		for (int i = 0; i < dataList.size(); i++) {
-			for (int j = 0; j < dataList.get(0).length(); j++) {
-				System.out.print(neueKarte[j][i]);
-			}
-			System.out.print("\n");
+	}
 
+	private PunktMitRichtung neuerPunkt(PunktMitRichtung meinPunkt) {
+		if ((meinPunkt.woher == 'L') && (meinPunkt.linksoffen())) {
+			if (meinPunkt.rechtsoffen())
+				meinPunkt = rechts(meinPunkt);
+			else if (meinPunkt.obenoffen())
+				meinPunkt = oben(meinPunkt);
+			else if (meinPunkt.untenoffen())
+				meinPunkt = unten(meinPunkt);
+		} else if ((meinPunkt.woher == 'U') && (meinPunkt.untenoffen())) {
+			if (meinPunkt.rechtsoffen())
+				meinPunkt = rechts(meinPunkt);
+			else if (meinPunkt.obenoffen())
+				meinPunkt = oben(meinPunkt);
+			else if (meinPunkt.linksoffen())
+				meinPunkt = links(meinPunkt);
+		} else if ((meinPunkt.woher == 'R') && (meinPunkt.rechtsoffen())) {
+			if (meinPunkt.untenoffen())
+				meinPunkt = unten(meinPunkt);
+			else if (meinPunkt.obenoffen())
+				meinPunkt = oben(meinPunkt);
+			else if (meinPunkt.linksoffen())
+				meinPunkt = links(meinPunkt);
+		} else if ((meinPunkt.woher == 'O') && (meinPunkt.obenoffen())) {
+			if (meinPunkt.untenoffen())
+				meinPunkt = unten(meinPunkt);
+			else if (meinPunkt.rechtsoffen())
+				meinPunkt = rechts(meinPunkt);
+			else if (meinPunkt.linksoffen())
+				meinPunkt = links(meinPunkt);
 		}
-		for (int i = 0; i < dataList.size(); i++) {
-			if (neueKarte[0][i] == '*') {
-				return sumRechts;
-			}
-			if (neueKarte[dataList.get(0).length() - 1][i] == '*') {
-				return sumRechts;
-			}
-		}
-		for (int i = 0; i < dataList.get(0).length(); i++) {
-			if (neueKarte[i][0] == '*') {
-				return sumRechts;
-			}
-			if (neueKarte[i][dataList.size() - 1] == '*') {
-				return sumRechts;
-			}
-		}
-
-		return sumLinks;
+		return meinPunkt;
 	}
 }
