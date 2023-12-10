@@ -335,7 +335,7 @@ public class day10 {
 					rechteSeite.add(rechterPunkt);
 					rechterPunkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y + 1, '*', ' ', ' ');
 					rechteSeite.add(rechterPunkt);
-					PunktMitRichtung linkerPunkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y - 1, '*', ' ',
+					PunktMitRichtung linkerPunkt = new PunktMitRichtung(meinPunkt.x + 1, meinPunkt.y - 1, '*', ' ',
 							' ');
 					linkeSeite.add(linkerPunkt);
 				} else if (meinPunkt.woher == 'R') {
@@ -399,7 +399,7 @@ public class day10 {
 					linkeSeite.add(punkt);
 					punkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y - 1, '*', ' ', ' ');
 					linkeSeite.add(punkt);
-					punkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y, '*', ' ', ' ');
+					punkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y - 1, '*', ' ', ' ');
 					linkeSeite.add(punkt);
 
 				} else if (meinPunkt.woher == 'R') {
@@ -409,7 +409,7 @@ public class day10 {
 					rechteSeite.add(punkt);
 					punkt = new PunktMitRichtung(meinPunkt.x - 1, meinPunkt.y - 1, '*', ' ', ' ');
 					rechteSeite.add(punkt);
-					punkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y, '*', ' ', ' ');
+					punkt = new PunktMitRichtung(meinPunkt.x, meinPunkt.y - 1, '*', ' ', ' ');
 					rechteSeite.add(punkt);
 				}
 			}
