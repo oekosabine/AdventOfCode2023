@@ -50,6 +50,6 @@ class day8Test {
 		List<String> testDaten = testInstance
 				.readData("C:\\Users\\boehm\\eclipse-workspace\\AdventOfCode2023\\src\\day8\\input.txt");
 		assertTrue((testInstance.solvePart1(testDaten)) == 19241);
-		assertTrue((testInstance.solvePart2(testDaten)) == 9606140307013);
+		assertTrue((testInstance.solvePart2(testDaten)) == 9606140307013L);
 	}
 }
